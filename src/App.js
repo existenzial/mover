@@ -1,105 +1,172 @@
 import React, { Component } from 'react';
-import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import { Button } from 'reactstrap';
+import { Input, Label } from 'reactstrap';
+
+import Palette from './components/Palette';
+import EditableRender from './components/EditableRender';
+import StaticRender from './components/StaticRender';
+import Draggable from './components/Draggable';
+import SurfaceManager from './components/SurfaceManager';
 
 import './App.css';
 
-class TargetBase extends Component {
-  render() {
-    const { connectDropTarget } = this.props;
-
-    return connectDropTarget(
-      <div
-        style={{
-          border: '1px dashed black',
-          padding: 50,
-          margin: 5,
-        }}
-      >
-      </div>
-    );
-  }
-}
-
-const Target = DropTarget('field', {
-}, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-}))(TargetBase);
-
-class TitleCard extends Component {
+class Field extends Component {
   render() {
     return (
-      <div className="title-card">
-        <i class="oi oi-account-login"></i>
-        {this.props.title}
-      </div>
-    );
-  }
-}
-
-class FieldComponentBase extends Component {
-  render() {
-    const { connectDragSource } = this.props;
-
-    return connectDragSource(
       <div
         style={{
           margin: 5,
         }}
       >
-        MyField: FOO
+        {this.props.name}: {this.props.value}
       </div>
     );
   }
 }
 
-const FieldComponent = DragSource('field', {
-  beginDrag(props) {
-    const item = { id: props.id };
-    return item;
-  },
+const FieldDraggable = Draggable(Field);
 
-  endDrag(props, monitor, component) {
-    console.log('endDrag');
-    console.log(props, monitor, component);
-    if (!monitor.didDrop()) {
-      return;
-    }
-
-    const item = monitor.getItem();
-    const dropResult = monitor.getDropResult();
-    // CardActions.moveCardToList(item.id, dropResult.listId);
+class Image extends Component {
+  render() {
+    return (
+      <img
+        className="rounded"
+        style={{
+          maxWidth: 500,
+        }}
+        src={this.props.src}
+      />
+    );
   }
-}, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
-}))(FieldComponentBase);
+}
 
-class AppArea extends Component {
+const ImageDraggable = Draggable(Image);
+
+const config = {
+  widgets: [
+    {
+      type: 'field',
+      name: 'Field',
+      icon: 'list',
+      editComponent: FieldDraggable,
+      renderComponent: Field,
+      defaultValues: {
+        name: 'Foo',
+        value: 'Bar'
+      }
+    },
+    {
+      type: 'image',
+      name: 'Image',
+      icon: 'camera-slr',
+      editComponent: ImageDraggable,
+      renderComponent: Image,
+      defaultValues: {
+        src: 'https://images.pexels.com/photos/58997/pexels-photo-58997.jpeg',
+      }
+    }
+  ]
+};
+
+const elements = [
+  [
+    {
+      type: 'image',
+      id: 1,
+      data: {
+        src: 'https://images.pexels.com/photos/460823/pexels-photo-460823.jpeg',
+      },
+      width: 12,
+    },
+  ],
+  [
+    {
+      type: 'field',
+      id: 2,
+      data: {
+        name: 'Price',
+        value: '$20.00',
+      },
+      width: 6,
+    },
+    {
+      type: 'field',
+      id: 3,
+      data: {
+        name: 'Artist',
+        value: 'Matisse',
+      },
+      width: 6,
+    },
+  ],
+  [
+    {
+      type: 'field',
+      id: 4,
+      data: {
+        name: 'Medium',
+        value: 'Black Velvet',
+      },
+      width: 6,
+    }
+  ]
+];
+
+const sm = new SurfaceManager(config, elements);
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editable: true,
+    };
+  }
+
   render() {
     return (
       <div className="container">
         <div className="row">
-          <div className="col-3">
-            Sidebar
-            <TitleCard title="Foo" />
-            <div>
-              <Button>Delete</Button>
-            </div>
+          <div className="col-12">
+            <Label check>
+              <Input
+                type="checkbox"
+                id="checkbox2"
+                checked={this.state.editable}
+                onClick={() => this.setState({
+                  editable: !this.state.editable,
+                })}
+              />
+              Editable
+            </Label>
           </div>
-          <div className="col-9">
-            <FieldComponent />
-            <FieldComponent />
-            <FieldComponent />
-            <Target />
-          </div>
+        </div>
+        <div className="row">
+        {
+          this.state.editable ?
+            [
+              <div className="col-3">
+                <Palette
+                  manager={sm}
+                />
+              </div>,
+              <div className="col-9">
+                <EditableRender
+                  manager={sm}
+                />
+              </div>
+            ] : (
+              <div>
+                <StaticRender
+                  manager={sm}
+                />
+              </div>
+            )
+        }
         </div>
       </div>
     );
   }
 }
 
-const App = DragDropContext(HTML5Backend)(AppArea);
-
-export default App;
+export default DragDropContext(HTML5Backend)(App);
