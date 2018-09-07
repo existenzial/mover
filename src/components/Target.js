@@ -16,6 +16,15 @@ const TargetIndicator = styled('div')`
 class TargetBase extends Component {
   render() {
     const { connectDropTarget } = this.props;
+    const iconStyling = {
+      width: 30,
+      height: 30,
+      color: this.props.isDragging ? 'black' : '#ccc'
+    };
+    if (this.props.vertical) {
+      iconStyling.position = 'relative';
+      iconStyling.top = '25%';
+    }
 
     return connectDropTarget(
       <div
@@ -29,11 +38,7 @@ class TargetBase extends Component {
         >
           <i
             className={`oi oi-target`}
-            style={{
-              width: 30,
-              height: 30,
-              color: this.props.isDragging ? 'black' : '#ccc'
-            }}
+            style={iconStyling}
           />
         </TargetIndicator>
       </div>

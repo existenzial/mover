@@ -34,7 +34,7 @@ const ElementContainer = styled('div')`
   align-items: stretch;
 `;
 
-class EditableElement extends Component {
+class EditableElementBase extends Component {
   render() {
     const { element, manager, last } = this.props;
     const Comp = this.props.typeMap[element.type].editComponent;
@@ -47,8 +47,8 @@ class EditableElement extends Component {
       >
         <EditableElementContainer>
           <TitleBar>
-            <a
-              href='#'
+            <button
+              className="btn btn-link"
               onClick={() => this.props.onDelete(element.id)}
             >
               <i
@@ -57,11 +57,26 @@ class EditableElement extends Component {
                   width: 30,
                   height: 30,
                   color: 'white',
-                  paddingRight: 10,
                 }}
               />
-            </a>
+            </button>
             {this.props.typeMap[element.type].name}
+            <button
+              className="btn btn-link"
+              onClick={() => this.props.toggleEditMode(element.id)}
+              style={{
+                float: 'right',
+              }}
+            >
+              <i
+                className={`oi oi-cog`}
+                style={{
+                  width: 30,
+                  height: 30,
+                  color: 'white',
+                }}
+              />
+            </button>
           </TitleBar>
           <ElementContainer>
             <Target
@@ -80,7 +95,10 @@ class EditableElement extends Component {
             <Comp
               onEndDrag={this.props.onEndDrag}
               onBeginDrag={this.props.onBeginDrag}
+              manager={this.props.manager}
+              element={element}
               id={element.id}
+              editMode={this.props.editMode}
               {...element.data}
             />
             {last && <Target
@@ -103,14 +121,19 @@ class EditableElement extends Component {
   }
 };
 
-EditableElement.propTypes = {
+EditableElementBase.propTypes = {
+  manager: managerType,
   element: elementType,
   typeMap: PropTypes.object,
   onEndDrag: PropTypes.func.isRequired,
   onBeginDrag: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  toggleEditMode: PropTypes.func.isRequired,
   last: PropTypes.bool,
+  editMode: PropTypes.bool,
 };
+
+const EditableElement = observer(EditableElementBase);
 
 class EditableRender extends Component {
   render() {
@@ -140,6 +163,8 @@ class EditableRender extends Component {
                   typeMap={typeMap}
                   key={element.id}
                   manager={manager}
+                  editMode={Boolean(manager.editMode[element.id])}
+                  toggleEditMode={(id) => manager.toggleEditMode(id)}
                   onDelete={(id) => manager.onDelete(id)}
                   onEndDrag={() => manager.onEndDrag()}
                   onBeginDrag={() => manager.onBeginDrag()}
