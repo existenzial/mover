@@ -17,21 +17,35 @@ const EditableElementContainer = styled('div')`
   padding: 0px;
   background: #efefef;
   border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 const TitleBar = styled('div')`
   background: #666;
   color: white;
-  padding-left: 10px;
-  padding-top: 2px;
-  padding-bottom: 2px;
   border-radius: 15px 15px 0px 0px;
+  background: #ccc;
+
+  display: flex;
+  flex-direction: row;
+`;
+
+const TitleBarTitle = styled('div')`
+  flex-grow: 1;
+  text-align: center;
 `;
 
 const ElementContainer = styled('div')`
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  padding: 0px;
+`;
+
+const ElementInterior = styled('div')`
+  flex-grow: 1;
 `;
 
 class EditableElementBase extends Component {
@@ -47,36 +61,45 @@ class EditableElementBase extends Component {
       >
         <EditableElementContainer>
           <TitleBar>
-            <button
-              className="btn btn-link"
-              onClick={() => this.props.onDelete(element.id)}
-            >
-              <i
-                className={`oi oi-circle-x`}
+            <div>
+              <button
+                className="btn btn-link"
+                onClick={() => this.props.onDelete(element.id)}
                 style={{
-                  width: 30,
-                  height: 30,
-                  color: 'white',
+                  height: 35,
                 }}
-              />
-            </button>
-            {this.props.typeMap[element.type].name}
-            <button
-              className="btn btn-link"
-              onClick={() => this.props.toggleEditMode(element.id)}
-              style={{
-                float: 'right',
-              }}
-            >
-              <i
-                className={`oi oi-cog`}
+              >
+                <i
+                  className={`oi oi-circle-x`}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    color: 'white',
+                  }}
+                />
+              </button>
+            </div>
+            <TitleBarTitle>
+              {this.props.typeMap[element.type].name}
+            </TitleBarTitle>
+            <div>
+              <button
+                className="btn btn-link"
+                onClick={() => this.props.toggleEditMode(element.id)}
                 style={{
-                  width: 30,
-                  height: 30,
-                  color: 'white',
+                  height: 35,
                 }}
-              />
-            </button>
+              >
+                <i
+                  className={`oi oi-cog`}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    color: 'white',
+                  }}
+                />
+              </button>
+            </div>
           </TitleBar>
           <ElementContainer>
             <Target
@@ -87,33 +110,45 @@ class EditableElementBase extends Component {
               isDragging={manager.isDragging}
               onActivate={(id) => manager.activeTarget = id}
               onDrop={(source, target) => manager.onDrop(source, target)}
-              vertical
               style={{
-                justifyContent: 'flex-start',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                padding: '2px 5px 2px 5px',
+                textAlign: 'center',
               }}
             />
-            <Comp
-              onEndDrag={this.props.onEndDrag}
-              onBeginDrag={this.props.onBeginDrag}
-              manager={this.props.manager}
-              element={element}
-              id={element.id}
-              editMode={this.props.editMode}
-              {...element.data}
-            />
-            {last && <Target
-              afterElement={element.id}
-              id={`after-${element.id}`}
-              key={`after-${element.id}`}
-              active={manager.activeTarget === `after-${element.id}`}
-              isDragging={manager.isDragging}
-              onActivate={(id) => manager.activeTarget = id}
-              onDrop={(source, target) => manager.onDrop(source, target)}
-              vertical
-              style={{
-                justifyContent: 'flex-end',
-              }}
-            />}
+            <ElementInterior>
+              <Comp
+                onEndDrag={this.props.onEndDrag}
+                onBeginDrag={this.props.onBeginDrag}
+                manager={this.props.manager}
+                element={element}
+                id={element.id}
+                editMode={this.props.editMode}
+                {...element.data}
+              />
+            </ElementInterior>
+            {last && 
+            (
+              <Target
+                afterElement={element.id}
+                id={`after-${element.id}`}
+                key={`after-${element.id}`}
+                active={manager.activeTarget === `after-${element.id}`}
+                isDragging={manager.isDragging}
+                onActivate={(id) => manager.activeTarget = id}
+                onDrop={(source, target) => manager.onDrop(source, target)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                  padding: '2px 5px 2px 5px',                
+                }}
+              />
+            )}
           </ElementContainer>
         </EditableElementContainer>
       </div>
