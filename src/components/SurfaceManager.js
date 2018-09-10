@@ -25,13 +25,11 @@ export default class SurfaceManager {
   }
 
   onBeginDrag() {
-    console.log('onBeginDrag');
     this.activeTarget = '';
     this.isDragging = true;
   }
 
   onEndDrag() {
-    console.log('onBeginDrag');
     this.activeTarget = '';
     this.isDragging = false;
   }
